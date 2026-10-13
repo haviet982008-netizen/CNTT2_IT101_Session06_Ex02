@@ -19,16 +19,13 @@ Select-String -Path app.log -Pattern "error" | Out-File -Append weekly_errors.tx
 "[$(Get-Date)] --- Ket thuc quet ---" | Out-File -Append weekly_errors.txt
 
 
-2. Bảng so sánh Out-File (Ghi đè) và Out-File -Append / Add-Content (Ghi nối)
-Tiêu chí
-	Out-File (Mặc định - Ghi đè)
-	Out-File -Append / Add-Content (Ghi nối)
-	Hành vi với tệp cũ
-	Xóa sạch nội dung cũ trước khi ghi dữ liệu mới vào tệp.
-	Giữ nguyên nội dung cũ và bổ sung dữ liệu mới vào cuối tệp.
-	Nguy cơ mất dữ liệu
-	Rất cao nếu chạy lặp lại hoặc chạy định kỳ (cron job/scheduled task).
-	An toàn, bảo toàn được toàn bộ lịch sử dữ liệu cũ.
-	Ứng dụng thực tế
-	Dùng khi khởi tạo file báo cáo mới hoặc reset log từ đầu.
-	Dùng trong ghi log hệ thống (logging), cộng dồn kết quả theo thời gian.
+2. Bảng so sánh Out-File (Ghi đè) và Out-File -Append / Add-Content (Ghi nối)-Hành vi với tệp cũ:
++Out-File (Mặc định - Ghi đè):
+Xóa sạch nội dung cũ trước khi ghi dữ liệu mới vào tệp.
+	+Out-File -Append / Add-Content (Ghi nối):Giữ nguyên nội dung cũ và bổ sung dữ liệu mới vào cuối tệp
+-Nguy cơ mất dữ liệu:
++Out-File (Mặc định - Ghi đè):Rất cao nếu chạy lặp lại hoặc chạy định kỳ (cron job/scheduled task)
++Out-File -Append / Add-Content (Ghi nối):An toàn, bảo toàn được toàn bộ lịch sử dữ liệu cũ.
+-Ứng dụng thực tế:
++Out-File (Mặc định - Ghi đè):Dùng khi khởi tạo file báo cáo mới hoặc reset log từ đầu.
++Out-File -Append / Add-Content (Ghi nối):Dùng trong ghi log hệ thống (logging), cộng dồn kết quả theo thời gian.
