@@ -1,0 +1,31 @@
+﻿Phần 1: Phân tích lỗi
+1. òng lệnh gây lỗi và nguyên nhân kỹ thuật
+* Dòng lệnh gây lỗi: Toàn bộ các dòng lệnh sử dụng cmdlet Out-File weekly_errors.txt (hoặc toán tử ghi đè mặc định) bên trong đoạn script hourly_log.ps1.
+* Nguyên nhân kỹ thuật: Mặc định trong PowerShell, lệnh Out-File mở tệp đích ở chế độ ghi đè (overwrite). Khi script chạy định kỳ mỗi giờ, mỗi lệnh Out-File gọi tới weekly_errors.txt sẽ xóa sạch toàn bộ nội dung cũ đã tích lũy từ các giờ trước đó và chỉ ghi lại dữ liệu mới nhất của lần chạy hiện tại.
+2. Trạng thái thực tế của tệp weekly_errors.txt sau mỗi lần chạy
+* Sau khi script hoàn tất một chu kỳ chạy mới, tệp weekly_errors.txt chỉ còn tồn tại đúng ba dòng dữ liệu thuộc về thời điểm quét gần nhất (gồm dòng bắt đầu, kết quả lọc sự kiện lỗi, và dòng kết thúc). Toàn bộ lịch sử log tích lũy trong tuần đã bị xóa trắng hoàn toàn.
+Phần 2: Sửa lỗi và kiểm thử
+1. Phiên bản script đã sửa đúng quy trình cộng dồn
+$erroractionpreference = "Stop"
+
+
+<#
+    Chức năng: Trích xuất sự kiện lỗi từ app.log và cộng dồn vào weekly_errors.txt
+#>
+
+
+"[$(Get-Date)] --- Bat dau quet ---" | Out-File -Append weekly_errors.txt
+Select-String -Path app.log -Pattern "error" | Out-File -Append weekly_errors.txt
+"[$(Get-Date)] --- Ket thuc quet ---" | Out-File -Append weekly_errors.txt
+
+
+2. Bảng so sánh Out-File (Ghi đè) và Out-File -Append / Add-Content (Ghi nối)-Hành vi với tệp cũ:
++Out-File (Mặc định - Ghi đè):
+Xóa sạch nội dung cũ trước khi ghi dữ liệu mới vào tệp.
+	+Out-File -Append / Add-Content (Ghi nối):Giữ nguyên nội dung cũ và bổ sung dữ liệu mới vào cuối tệp
+-Nguy cơ mất dữ liệu:
++Out-File (Mặc định - Ghi đè):Rất cao nếu chạy lặp lại hoặc chạy định kỳ (cron job/scheduled task)
++Out-File -Append / Add-Content (Ghi nối):An toàn, bảo toàn được toàn bộ lịch sử dữ liệu cũ.
+-Ứng dụng thực tế:
++Out-File (Mặc định - Ghi đè):Dùng khi khởi tạo file báo cáo mới hoặc reset log từ đầu.
++Out-File -Append / Add-Content (Ghi nối):Dùng trong ghi log hệ thống (logging), cộng dồn kết quả theo thời gian.
